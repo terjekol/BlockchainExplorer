@@ -23,17 +23,17 @@ namespace BlockchainExplorer.Pages
         public Search CurrentSearch { get; set; }
 
 
-public async Task OnGet(string actionName, string paramValue, int[] indexes)
-{
-    CreateActions();
-    if (actionName == null) return;
-    ActionName = ShortenName(actionName);
-    var action = Actions.SingleOrDefault(a => a.Name.Contains(actionName));
-    if (action == null) return;
-    CurrentSearch = new Search { ActionName = actionName, ParamValue = paramValue, Indexes = new List<int>(indexes) };
-    var obj = await DoAction(paramValue, action);
-    Save(obj);
-}
+        public async Task OnGet(string actionName, string paramValue, int[] indexes)
+        {
+            CreateActions();
+            if (actionName == null) return;
+            ActionName = ShortenName(actionName);
+            var action = Actions.SingleOrDefault(a => a.Name.Contains(actionName));
+            if (action == null) return;
+            CurrentSearch = new Search { ActionName = actionName, ParamValue = paramValue, Indexes = new List<int>(indexes) };
+            var obj = await DoAction(paramValue, action);
+            Save(obj);
+        }
 
 
         private async Task<object> DoAction(string paramValue, MethodInfo action)
