@@ -49,8 +49,16 @@ namespace BlockchainExplorer.Pages
             CurrentSearch = new Search { ActionName = actionName, ParamValue = paramValue, Indexes = new List<int>(indexes) };
             var obj = await DoAction(paramValue, action);
             Save(obj);
+            await HandleRecentSearches(actionName, paramValue);
         }
 
+        private async Task HandleRecentSearches(string actionName, string paramValue)
+        {
+            var userName = HttpContext.User.Identity.Name;
+            RecentSearches = _db.Search.Where(s => s.User == userName).OrderByDescending(s => s.Id).AsEnumerable();
+            _db.Search.Add(new Search() { ActionName = actionName, ParamValue = paramValue, User = userName });
+            await _db.SaveChangesAsync();
+        }
 
         private async Task<object> DoAction(string paramValue, MethodInfo action)
         {
