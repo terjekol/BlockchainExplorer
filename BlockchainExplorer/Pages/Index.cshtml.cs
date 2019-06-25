@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using BlockChainExplorer.Model;
+using BlockchainExplorer.Model;
 using Info.Blockchain.API.BlockExplorer;
 using Info.Blockchain.API.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -22,6 +22,22 @@ namespace BlockchainExplorer.Pages
         public IEnumerable<Search> RecentSearches { get; set; }
         public Search CurrentSearch { get; set; }
 
+        private readonly BlockchainExplorerDbContext _db;
+
+        public IndexModel(BlockchainExplorerDbContext db)
+        {
+            _db = db;
+        }
+
+        private readonly Link[] _links =
+        {
+            new Link("Block", "PreviousBlockHash", "GetBlockByHashAsync"),
+            new Link("SimpleBlock", "Hash", "GetBlockByHashAsync"),
+            new Link("Transaction", "Hash", "GetTransactionByHashAsync"),
+            new Link("Transaction", "Index", "GetTransactionByIndexAsync"),
+            new Link("Block", "Height", "GetBlocksAtHeightAsync"),
+            new Link("SimpleBlock", "Height", "GetBlocksAtHeightAsync"),
+        };
 
         public async Task OnGet(string actionName, string paramValue, int[] indexes)
         {
@@ -95,6 +111,12 @@ namespace BlockchainExplorer.Pages
             if (collection == null) return null;
             var skipCount = CurrentSearch.GetCollectionNo(collectionIndex) - 1;
             return collection.Skip(skipCount).FirstOrDefault();
+        }
+
+        public string GetNavigationActionName(string propertyName, object obj = null)
+        {
+            if (obj == null) obj = _object;
+            return _links.FirstOrDefault(n => n.Type == obj.GetType().Name && n.PropertyName == propertyName)?.ActionName;
         }
 
         public int GetCollectionCount(PropertyInfo prop, int collectionIndex)
